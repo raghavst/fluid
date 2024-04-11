@@ -1,0 +1,5 @@
+/env
+/CIFAR10_resnet18/data
+/CIFAR10_vgg/data
+/FEMNIST/data
+/Shakespeare/data
