@@ -1,0 +1,10 @@
+default==0.1.2
+flwr[simulation]==0.18.0
+flwr-datasets[vision]>=0.0.2, <1.0.0
+numpy==1.25.0
+scikit_learn==1.5.0
+torch==1.13.1
+torchvision==0.14.1
+tqdm==4.66.3
+matplotlib
+seaborn
