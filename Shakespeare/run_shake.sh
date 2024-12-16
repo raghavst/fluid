@@ -14,7 +14,8 @@ then
         echo "$ip"
         server="$ip"
     done <ip_shake.txt
-    python3 server.py --server_address $server:35005 --rounds 250 --min_num_clients 48 --min_sample_size 1 --model Shakespeare_LSTM
+
+    python3 server.py --server_address $server:35005 --rounds 50 --min_num_clients 20 --min_sample_size 1 --model Shakespeare_LSTM
 
 else 
     sleep 20
@@ -26,13 +27,8 @@ else
         server="$ip"
     done <ip_shake.txt
 
-    python3 client.py --server_address $server:35005 --cid $(($cid  + 0)) --model Shakespeare_LSTM --device gpu &
-    python3 client.py --server_address $server:35005 --cid $(($cid  + 1)) --model Shakespeare_LSTM --device gpu &
-    python3 client.py --server_address $server:35005 --cid $(($cid  + 2)) --model Shakespeare_LSTM --device gpu &
-    python3 client.py --server_address $server:35005 --cid $(($cid  + 3)) --model Shakespeare_LSTM --device gpu &
-    python3 client.py --server_address $server:35005 --cid $(($cid  + 4)) --model Shakespeare_LSTM --device gpu &
-    python3 client.py --server_address $server:35005 --cid $(($cid  + 5)) --model Shakespeare_LSTM --device gpu &
-    python3 client.py --server_address $server:35005 --cid $(($cid  + 6)) --model Shakespeare_LSTM --device gpu &
-    python3 client.py --server_address $server:35005 --cid $(($cid  + 7)) --model Shakespeare_LSTM --device gpu 
-
+    for i in $(seq 0 19); do
+        python3 client.py --server_address $server:35005 --cid $(($cid  + i)) --model Shakespeare_LSTM --device gpu &
+    done
+    
 fi
