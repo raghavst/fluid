@@ -40,6 +40,11 @@ from .aggregate import aggregate, aggregate_drop, weighted_loss_avg
 from .strategy import Strategy
 import numpy as np
 import random
+from logging import DEBUG, ERROR, INFO, WARN
+import os
+
+constant_p_val = float(os.getenv('P_VALUE', '0.8'))
+print(f"Using p-value of {constant_p_val}")
 
 DEPRECATION_WARNING = """
 DEPRECATION WARNING: deprecated `eval_fn` return format
@@ -153,7 +158,7 @@ class FedDropShake(Strategy):
         self.roundCounter = 0
         self.stopChange = False
         self.parameters: Parameters
-        self.constant_pval = 0.75
+        self.constant_pval = constant_p_val
 
     def __repr__(self) -> str:
         rep = f"FedAvg(accept_failures={self.accept_failures})"
@@ -228,14 +233,14 @@ class FedDropShake(Strategy):
         for client in clients:
             if (client.cid in self.straggler) and rnd > 1:
                 p_val = self.p_val[client.cid]
-                print(p_val)
+                # print(p_val)
                 config_drop = self.on_fit_config_fn(rnd,p_val)
 
                 # CHANGE HERE for each dropout method. See method for clarification on each input to the method
                 # drop_rand - random dropout
                 # drop_order - ordered dropout
                 # drop_dynamic - invariant dropout
-                fit_ins_drop = FitIns(self.drop_dynamic(parameters, p_val, [1,5], 2, client.cid), config_drop)
+                fit_ins_drop = FitIns(self.drop_order(parameters, p_val, [1,5], 2, client.cid), config_drop)
                 clientList.append((client, fit_ins_drop))
             else:
                 clientList.append((client, fit_ins))
@@ -501,7 +506,16 @@ class FedDropShake(Strategy):
             self.droppedWeights[cid][idx + 4][1] = list.copy()
 
             self.prevDropWeights[idx] = list.copy()
-            print("Dropped weights idx ", idx, ": ", (self.prevDropWeights[idx]))
+            log(
+                INFO,
+                "cid: %s. numToDrop: %s. p_val: %s. idx: %s. Dropped weights: %s",
+                cid,
+                numToDrop,
+                p,
+                idx,
+                self.prevDropWeights[idx]
+            )
+            # print("Dropped weights idx ", idx, ": ", (self.prevDropWeights[idx]))
 
             # remove each row/column from the back
             weights[idx] = np.delete(weights[idx], listExt, 0)

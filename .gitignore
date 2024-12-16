@@ -3,3 +3,5 @@
 /CIFAR10_vgg/data
 /FEMNIST/data
 /Shakespeare/data
+ip_shake.txt
+logs

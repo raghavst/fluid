@@ -107,7 +107,7 @@ def main() -> None:
         evaList = [x for x in range(100)]
         evaList_small = [0,10,20,30,40]
         # note, Eval list can take a long time, for shorter evaluation use evaList_small
-        _, testset = utils.load_shake(evaList)
+        _, testset = utils.load_shake(evaList_small)
     else:
         _, testset = utils.load_cifar(download=True)
 
