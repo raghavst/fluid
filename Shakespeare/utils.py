@@ -86,7 +86,8 @@ def train(
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(net.parameters(), lr=0.001)
 
-    print(f"Training {epochs} epoch(s) w/ {len(trainloader)} batches each")
+    print(f"Training {epochs} epoch(s) w/ {len(trainloader)} batches each."
+          "Number of model parameters are: {sum(p.numel() for p in net.parameters())}")
     t = time()
 
     for epoch in range(epochs):

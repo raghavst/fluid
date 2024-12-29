@@ -43,8 +43,10 @@ import random
 from logging import DEBUG, ERROR, INFO, WARN
 import os
 
-constant_p_val = float(os.getenv('P_VALUE', '0.8'))
-print(f"Using p-value of {constant_p_val}")
+constant_pval = float(os.getenv('P_VALUE', '0.8'))
+print(f"Using p-value of {constant_pval}")
+drop_type = str(os.getenv("DROP_TYPE", "dynamic"))
+print(f"Using drop_type of {drop_type}")
 
 DEPRECATION_WARNING = """
 DEPRECATION WARNING: deprecated `eval_fn` return format
@@ -158,7 +160,7 @@ class FedDropShake(Strategy):
         self.roundCounter = 0
         self.stopChange = False
         self.parameters: Parameters
-        self.constant_pval = constant_p_val
+        self.constant_pval = constant_pval
 
     def __repr__(self) -> str:
         rep = f"FedAvg(accept_failures={self.accept_failures})"
@@ -240,7 +242,13 @@ class FedDropShake(Strategy):
                 # drop_rand - random dropout
                 # drop_order - ordered dropout
                 # drop_dynamic - invariant dropout
-                fit_ins_drop = FitIns(self.drop_order(parameters, p_val, [1,5], 2, client.cid), config_drop)
+                if (drop_type == "ordered"):
+                    drop_function = self.drop_order
+                elif (drop_type == "random"):
+                    drop_function = self.drop_rand
+                else:
+                    drop_function = self.drop_dynamic
+                fit_ins_drop = FitIns(drop_function(parameters, p_val, [1,5], 2, client.cid), config_drop)
                 clientList.append((client, fit_ins_drop))
             else:
                 clientList.append((client, fit_ins))
@@ -446,7 +454,15 @@ class FedDropShake(Strategy):
             self.droppedWeights[cid][idx + 4][1] = list.copy()
 
             self.prevDropWeights[idx] = list.copy()
-            print("Dropped weights idx ", idx, ": ", (self.prevDropWeights[idx]))
+            log(
+                INFO,
+                "cid: %s. %s. p_val: %s. idx: %s. Dropped weights: %s",
+                cid,
+                p,
+                idx,
+                self.prevDropWeights[idx]
+            )
+            # print("Dropped weights idx ", idx, ": ", (self.prevDropWeights[idx]))
 
             # remove each row/column from the back
             print(listExt)
@@ -746,7 +762,16 @@ class FedDropShake(Strategy):
             self.droppedWeights[cid][idx + 4][1] = list.copy()
 
             self.prevDropWeights[idx] = list.copy()
-            print("Dropped weights idx ", idx, ": ", (self.prevDropWeights[idx]))
+            log(
+                INFO,
+                "cid: %s. numToDrop: %s. p_val: %s. idx: %s. Dropped weights: %s",
+                cid,
+                numToDrop,
+                p,
+                idx,
+                self.prevDropWeights[idx]
+            )
+            # print("Dropped weights idx ", idx, ": ", (self.prevDropWeights[idx]))
 
             # remove each row/column from the back
             weights[idx] = np.delete(weights[idx], listExt, 0)
